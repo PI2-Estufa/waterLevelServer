@@ -1,6 +1,7 @@
 from nameko.rpc import rpc
 import db
 from db import WaterLevel
+from psycopg2 import OperationalError
 
 
 class WaterLevelServer():
@@ -11,6 +12,9 @@ class WaterLevelServer():
         water_level = round(water_level, 1)
         w = WaterLevel()
         w.value = water_level
-        db.session.add(w)
-        db.session.commit()
+        try:
+            db.session.add(w)
+            db.session.commit()
+        except OperationalError:
+            db.session.rollback()
         return water_level
